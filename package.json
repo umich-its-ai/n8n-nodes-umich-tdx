@@ -1,0 +1,52 @@
+{
+	"name": "n8n-nodes-umich-tdx",
+	"version": "1.0.0",
+	"description": "n8n node to call UMich TDX services.",
+	"license": "MIT",
+	"homepage": "https://workflows.umgpt.umich.edu/home/workflows",
+	"keywords": [
+		"n8n-community-node-package",
+		"university-of-michigan",
+		"tdx"
+	],
+	"author": {
+		"name": "Chris Puzzuoli",
+		"email": "cpuzzuol@umich.edu"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git@github.com:umich-its-ai/n8n_custom_nodes.git"
+	},
+	"scripts": {
+		"build": "n8n-node build",
+		"build:watch": "tsc --watch",
+		"dev": "n8n-node dev",
+		"lint": "n8n-node lint",
+		"lint:fix": "n8n-node lint --fix",
+		"release": "n8n-node release",
+		"prepublishOnly": "n8n-node prerelease"
+	},
+	"files": [
+		"dist"
+	],
+	"n8n": {
+		"n8nNodesApiVersion": 1,
+		"credentials": [
+			"dist/credentials/UmichTdxOAuth2Api.credentials.js"
+		],
+		"nodes": [
+			"dist/nodes/UmichTdx/UmichTdx.node.js"
+		]
+	},
+	"devDependencies": {
+		"@n8n/node-cli": "*",
+		"@types/node": "^25.0.1",
+		"eslint": "9.32.0",
+		"prettier": "3.6.2",
+		"release-it": "^19.0.4",
+		"typescript": "5.9.2"
+	},
+	"peerDependencies": {
+		"n8n-workflow": "*"
+	}
+}
