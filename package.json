@@ -1,5 +1,5 @@
 {
-	"name": "n8n-nodes-umich-tdx",
+	"name": "umich-tdx-node",
 	"version": "1.0.0",
 	"description": "An n8n Node to connect to UM's TDX Proxy APIs.",
 	"license": "MIT",
