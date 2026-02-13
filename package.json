@@ -1,6 +1,6 @@
 {
 	"name": "umich-tdx-node",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "An n8n Node to connect to UM's TDX Proxy APIs.",
 	"license": "MIT",
 	"homepage": "https://workflows.umgpt.umich.edu/home/workflows",
