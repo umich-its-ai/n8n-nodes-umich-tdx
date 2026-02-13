@@ -1,4 +1,4 @@
-# umich-tdx-node
+# n8n-nodes-umich-tdx
 
 This is an n8n community node that provides integration with the University of Michigan (UMich) TeamDynamix (TDX) API. It enables you to interact with UMich TDX services directly from your n8n workflows, including ticket creation, modification, search, and user lookup operations.
 
