@@ -41,7 +41,7 @@
 	"devDependencies": {
 		"@n8n/node-cli": "*",
 		"@types/node": "^25.2",
-		"eslint": "^10.0",
+		"eslint": "^9.29",
 		"prettier": "^3.8",
 		"release-it": "^19.2",
 		"typescript": "^5.9"
