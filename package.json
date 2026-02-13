@@ -15,7 +15,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git@github.com:umich-its-ai/n8n_custom_nodes.git"
+		"url": "git@github.com:umich-its-ai/n8n-nodes-umich-tdx.git"
 	},
 	"scripts": {
 		"build": "n8n-node build",
