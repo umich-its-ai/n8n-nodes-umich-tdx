@@ -29,7 +29,7 @@ export class UmichTdx implements INodeType {
 				'Content-Type': 'application/json',
 			},
 		},
-		usableAsTool: undefined,
+		usableAsTool: true,
 		properties: [...allResources, ...allFields],
 	};
 
