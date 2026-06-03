@@ -125,7 +125,7 @@ Equivalent to `n8n-node release` — publishes the version currently in `package
 ### 7. Verify
 
 ```bash
-npm view n8n-nodes-umich-tdx version
+
 ```
 
 Confirm it matches `package.json`. Install in a test n8n instance if needed.
