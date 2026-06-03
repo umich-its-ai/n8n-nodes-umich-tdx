@@ -7,6 +7,7 @@ export * from './ticketSearch';
 export * from './ticketCreation';
 export * from './ticketModification';
 export * from './userLookup';
+export * from './reportSearch';
 export * from './resource';
 
 // Aggregated export for convenience - combines all resources and operations
@@ -15,12 +16,14 @@ import { ticketSearchOperations } from './ticketSearch';
 import { ticketCreationOperations } from './ticketCreation';
 import { ticketModificationOperations } from './ticketModification';
 import { userLookupOperations } from './userLookup';
+import { reportSearchOperations } from './reportSearch';
 import { INodeProperties } from 'n8n-workflow';
 
 export const allResources: INodeProperties[] = [
 	ticketResource,
-	...ticketSearchOperations,
+	...ticketSearchOperations, // ... are spread operators to add the operations to the array in a flat manner
 	...ticketCreationOperations,
 	...ticketModificationOperations,
 	...userLookupOperations,
-];
+	...reportSearchOperations
+]

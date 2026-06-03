@@ -26,6 +26,10 @@ export const ticketResource: INodeProperties = {
 			name: 'User Lookup',
 			value: 'userLookup',
 		},
+		{
+			name: 'Report Search',
+			value: 'reportSearch',
+		},
 	],
 	default: 'ticketSearch',
 };
