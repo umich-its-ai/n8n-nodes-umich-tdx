@@ -574,6 +574,27 @@ export async function preSendValidateRequestorEmailSearchInRequest(
 }
 
 /**
+ * PreSend hook to validate Owner UID in request
+ * @param this - The context object
+ * @param requestOptions - The request options object
+ * @returns The request options object
+ */
+export async function preSendValidateOwnerUidInRequest(
+	this: IExecuteSingleFunctions,
+	requestOptions: IHttpRequestOptions
+): Promise<IHttpRequestOptions> {
+	const addlParams = this.getNodeParameter("additionalParameters") as Record<
+		string,
+		unknown
+	>
+	const ownerUid = addlParams.ownerUid as string
+	if (ownerUid) {
+		validateUid(ownerUid)
+	}
+	return requestOptions
+}
+
+/**
  * Parses a comma-separated list of numeric IDs into an array and validates each ID
  * @param list - The comma-separated list of numeric IDs to parse
  * @param fieldLabel

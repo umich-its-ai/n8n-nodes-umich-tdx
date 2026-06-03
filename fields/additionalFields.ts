@@ -347,5 +347,47 @@ export const additionalFields: INodeProperties[] = [
 				}
 			}
 		]
+	},
+	{
+		displayName: "Additional Parameters",
+		name: "additionalParameters",
+		type: "collection",
+		default: {},
+		placeholder: "Add Parameter",
+		displayOptions: {
+			show: {
+				resource: ["reportSearch"],
+				operation: ["searchReports"]
+			}
+		},
+		options: [
+			{
+				displayName: "Owner UID",
+				name: "ownerUid",
+				type: "string",
+				default: "",
+				required: false,
+				routing: {
+					send: {
+						type: "body",
+						property: "ownerUid"
+					}
+				}
+			},
+			{
+				displayName: "Report Source ID",
+				name: "reportSourceId",
+				type: "string",
+				default: "",
+				required: false,
+				routing: {
+					send: {
+						type: "body",
+						property: "reportSourceId"
+					}
+				},
+				validateType: "number"
+			}
+		]
 	}
 ]
