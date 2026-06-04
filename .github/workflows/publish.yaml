@@ -23,7 +23,12 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
 
       - run: npm ci
-      - run: npm run lint
-      - run: npm run build
-      # prepublishOnly runs n8n-node prerelease on publish
-      - run: npm publish --access public
+
+      # n8n-node blocks plain `npm publish` (prepublishOnly → prerelease).
+      # In CI, `npm run release` runs lint, build, then publishes with provenance.
+      - name: Publish to npm
+        run: |
+          [ -n "$NPM_TOKEN" ] && npm config set //registry.npmjs.org/:_authToken "$NPM_TOKEN"
+          npm run release
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
