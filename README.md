@@ -1,6 +1,6 @@
 # n8n-nodes-umich-tdx
 
-This is an n8n community node that provides integration with the University of Michigan (UMich) TeamDynamix (TDX) API. It enables you to interact with UMich TDX services directly from your n8n workflows, including ticket creation, modification, search, and user lookup operations.
+This is an n8n community node that provides integration with the University of Michigan (UMich) TeamDynamix (TDX) API. It enables you to interact with UMich TDX services directly from your n8n workflows, including ticket creation, modification, single-ticket and multi-ticket search, report lookup, and user lookup operations.
 
 The UMich TDX API is a service that allows programmatic access to TeamDynamix ticket management functionality for University of Michigan systems.
 
@@ -58,7 +58,7 @@ To use this node, you need to set up OAuth2 credentials with the U-M API Directo
 
 ## Resources and Operations
 
-The UMich TDX node supports four main resources, each with specific operations:
+The UMich TDX node supports five main resources, each with specific operations:
 
 ### 1. Ticket Search
 
@@ -69,6 +69,28 @@ Search and retrieve ticket information from TDX.
 - **Get Ticket by ID**: Retrieve a single TDX ticket by its ID
   - **Parameters**:
     - `Ticket ID` (required): The numeric ID of the ticket to retrieve
+
+- **Search Tickets**: Search for multiple tickets matching criteria (POST to the ticket search API)
+  - **Parameters**:
+    - `Search Text` (optional): Free-text search across ticket fields
+    - `Max Results` (optional): Maximum number of tickets to return (numeric, default: `3`)
+  - **Additional Parameters** (optional collection — combine filters as needed):
+    - `Ticket ID`: Filter to a specific ticket ID
+    - `Parent Ticket ID`: Filter by parent ticket ID
+    - `Requestor Name Search`: Search requestors by name
+    - `Requestor Email Search`: Search requestors by email (must be `@umich.edu`)
+    - `Status IDs`: Comma-separated status IDs (e.g. `1,2,3`)
+    - `Service IDs`: Comma-separated service IDs
+    - `Location IDs`: Comma-separated location IDs
+    - `Account IDs`: Comma-separated account IDs
+    - `Requestor UIDs`: Comma-separated requestor UIDs
+    - `Responsibility UIDs`: Comma-separated responsibility UIDs
+    - `Responsibility Group IDs`: Comma-separated responsibility group IDs
+    - `Created Date From` / `Created Date To`: Created date range (date/time fields)
+    - `Updated Date From` / `Updated Date To`: Updated date range (date/time fields)
+    - `Ticket Classification`: Filter by ticket classification
+
+  Returns multiple tickets in the API response (up to `Max Results`). Use this operation when you need to find tickets by status, service, requestor, dates, or text rather than a known ticket ID.
 
 ### 2. Ticket Creation
 
@@ -121,6 +143,27 @@ Look up user information in TDX.
   - **Parameters**:
     - `U-M Uniqname` (required): The uniqname to search for (3-8 lowercase letters only)
 
+### 5. Report Search
+
+Search and retrieve TDX reports (saved searches / reporting definitions).
+
+#### Operations
+
+- **Get Report by ID**: Retrieve a single report by ID
+  - **Parameters**:
+    - `Report ID` (required): The numeric ID of the report
+  - **Note**: The report’s visibility settings must include the **APIReportingAccess** group for it to be accessible via this API.
+
+- **Search Reports**: Search for multiple reports matching criteria
+  - **Parameters**:
+    - `Search Text` (optional): Free-text search across report names/descriptions
+  - **Additional Parameters** (optional collection):
+    - `Owner UID`: Filter reports by owner’s TDX UID (alphanumeric)
+    - `Report Source ID`: Filter by report source ID (numeric)
+  - `App ID` is taken automatically from your credentials (`forAppId` in the request body).
+
+  Returns multiple reports in the API response. Use **Get Report by ID** when you already know the report ID; use **Search Reports** to discover reports by name or owner.
+
 ## Validation and Security
 
 The node includes comprehensive validation measures to ensure data integrity and security:
@@ -130,7 +173,7 @@ The node includes comprehensive validation measures to ensure data integrity and
 1. **Email Validation**:
    - Must be a valid email format
    - **Must be a `@umich.edu` email address** (enforced)
-   - Used for: Requestor Email
+   - Used for: Requestor Email (ticket creation) and Requestor Email Search (ticket search)
 
 2. **Uniqname Validation**:
    - Must be 3-8 characters long
@@ -140,21 +183,25 @@ The node includes comprehensive validation measures to ensure data integrity and
 3. **UID Validation**:
    - Must be alphanumeric (letters, numbers, dots, hyphens, underscores)
    - Prevents path traversal attacks
-   - Used for: Contact UID, Ticket ID
+   - Used for: TDX User UID (contacts, report owners), and UID fields in ticket search filters
 
 4. **Numeric ID Validation**:
    - Must be numeric only
-   - Used for: Service ID, Responsible Group ID, Status ID, Source ID, Ticket ID
+   - Used for: Service ID, Responsible Group ID, Status ID, Source ID, Ticket ID, Report ID, Report Source ID
 
-5. **Text Length Validation**:
+5. **Comma-Separated ID Lists**:
+   - Used in **Search Tickets** additional parameters (`Status IDs`, `Service IDs`, `Location IDs`, etc.)
+   - Each value must be numeric; lists are parsed and sent to the API as arrays
+
+6. **Text Length Validation**:
    - **Title**: Maximum 500 characters
    - **Description/Body**: Maximum 2000 characters
    - **Comments**: Maximum 2000 characters
    - Prevents DoS attacks from excessively large payloads
 
-6. **Source ID Validation**:
+7. **Source ID Validation**:
    - Only allows specific source IDs
-   - Currently only allows `8` (Systems)
+   - Currently only allows `8` (Systems) for ticket creation
    - Can be expanded in the future
 
 ### Security Features
@@ -223,6 +270,27 @@ To switch between environments:
    - Ticket ID: "12345"
    - New Comment: "Status update from automated workflow"
 
+### Example 4: Search Multiple Tickets
+
+1. Add a "UMich TDX" node
+2. Select Resource: "Ticket Search"
+3. Select Operation: "Search Tickets"
+4. Set:
+   - Search Text: `"network outage"` (optional)
+   - Max Results: `10`
+5. Under **Additional Parameters**, add filters as needed, for example:
+   - Status IDs: `1,2`
+   - Service IDs: `31`
+   - Requestor Email Search: `user@umich.edu`
+6. Execute the workflow — the output contains multiple matching tickets for downstream nodes (Split Out, loops, etc.)
+
+### Example 5: Find a Report and Run It
+
+1. First node: "Report Search" → "Search Reports"
+   - Search Text: `"open tickets"`
+   - Additional Parameters → Owner UID: (optional, from a prior User Lookup node)
+2. Use the report ID from the search results in a follow-on workflow step, or call **Get Report by ID** with a known ID to retrieve full report metadata.
+
 ## Compatibility
 
 - **Minimum n8n version**: Compatible with n8n workflow API version 1
@@ -240,14 +308,16 @@ To switch between environments:
 
 ### Finding IDs
 
-- **Service ID**: Found in the JSON response when retrieving a ticket via "Ticket Search"
+- **Service ID**: Found in the JSON response when retrieving a ticket via "Ticket Search" (single or search results)
+- **Status ID**: Found in ticket search/get responses; use comma-separated values for multi-ticket search filters
 - **Responsible Group ID**: In TDX, go to the create ticket form, search for groups in the Responsible field, click "View" under the profile, and find the "Group ID" in the upper-left portion of the page
-- **TDX User UID**: Found in the JSON response when using "User Lookup" → "Find UID by Uniqname"
+- **TDX User UID**: Found in the JSON response when using "User Lookup" → "Find UID by Uniqname"; also used as **Owner UID** in report search
+- **Report ID**: From **Search Reports** results, or from the TDX reporting UI (report must grant **APIReportingAccess** visibility)
 
 ### Support
 
 For issues, questions, or contributions, please refer to the repository:
-- **Repository**: [n8n-umich-tdx](https://github.com/cpuzzuol/n8n-umich-tdx)
+- **Repository**: [n8n-nodes-umich-tdx](https://github.com/umich-its-ai/n8n-nodes-umich-tdx)
 - **Author**: Chris Puzzuoli (cpuzzuol@umich.edu)
 
 ---
