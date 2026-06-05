@@ -1,37 +1,37 @@
-import { INodeType, INodeTypeDescription } from 'n8n-workflow';
+import { INodeType, INodeTypeDescription, NodeConnectionTypes } from 'n8n-workflow';
 import { allResources } from '../../resources';
 import { allFields } from '../../fields';
 
 export class UmichTdx implements INodeType {
 	description: INodeTypeDescription = {
-		displayName: 'UMich TDX',
-		name: 'umichTdx',
-		icon: 'file:umichtdx.svg',
-		group: ['transform'],
+		displayName: "UMich TDX",
+		name: "umichTdx",
+		icon: "file:umichtdx.svg",
+		group: ["transform"],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
-		description: 'Connect to UMich TDX',
+		description: "Connect to UMich TDX",
 		defaults: {
-			name: 'UMich TDX',
+			name: "UMich TDX"
 		},
-		inputs: ['main'],
-		outputs: ['main'],
+		inputs: [NodeConnectionTypes.Main],
+		outputs: [NodeConnectionTypes.Main],
 		credentials: [
 			{
-				name: 'umichTdxOAuth2Api',
-				required: true,
-			},
+				name: "umichTdxOAuth2Api",
+				required: true
+			}
 		],
 		requestDefaults: {
 			// baseURL set dynamically in the authentication helper based on the environment
 			headers: {
-				Accept: 'application/json',
-				'Content-Type': 'application/json',
-			},
+				Accept: "application/json",
+				"Content-Type": "application/json"
+			}
 		},
 		usableAsTool: true,
-		properties: [...allResources, ...allFields],
-	};
+		properties: [...allResources, ...allFields]
+	}
 
 	methods = {
 		loadOptions: {
