@@ -208,40 +208,6 @@ export async function preSendValidateServiceIdInRequest(
 }
 
 /**
- * PreSend hook to validate Source ID in request
- * @param this - The context object
- * @param requestOptions - The request options object
- * @returns The request options object
- */
-export async function preSendValidateSourceIdInRequest(
-	this: IExecuteSingleFunctions,
-	requestOptions: IHttpRequestOptions
-): Promise<IHttpRequestOptions> {
-	const sourceId = this.getNodeParameter("sourceId") as string
-	if (sourceId) {
-		validateSourceId(String(sourceId))
-	}
-	return requestOptions
-}
-
-/**
- * PreSend hook to validate Status ID in request
- * @param this - The context object
- * @param requestOptions - The request options object
- * @returns The request options object
- */
-export async function preSendValidateStatusIdInRequest(
-	this: IExecuteSingleFunctions,
-	requestOptions: IHttpRequestOptions
-): Promise<IHttpRequestOptions> {
-	const statusId = this.getNodeParameter("statusId") as string
-	if (statusId) {
-		validateNumericId(String(statusId), "Status ID")
-	}
-	return requestOptions
-}
-
-/**
  * PreSend hook to validate Ticket Creation Fields in request
  * @param this - The context object
  * @param requestOptions - The request options object
