@@ -118,12 +118,14 @@ Then commit `package.json`, `package-lock.json`, and `CHANGELOG.md` yourself, an
 **Option B — interactive (`n8n-node` / release-it):**
 
 ```bash
-npm run release
+npm run release:local
 ```
 
 On your machine this runs release-it: lint, build, version bump prompt, changelog, commit, tag, and push. It **does not** publish to npm (`--npm.publish=false`). Pushing the tag still triggers CI to publish.
 
-Do **not** use `npm run release --publish` unless you intentionally want a local publish **without** provenance.
+Do **not** use `npm run release:local --publish` unless you intentionally want a local publish **without** provenance.
+
+`npm run release:local` is set up to use the GITHUB_TOKEN set in the .env file. That token is not available in CI, which just uses the `npm run release` command.
 
 ### 4. Update `CHANGELOG.md`
 
@@ -180,7 +182,7 @@ Install in a test n8n instance if needed.
 ## Quick checklist
 
 - [ ] Code merged / committed
-- [ ] `npm version patch` (or minor/major), **or** `npm run release` locally
+- [ ] `npm version patch` (or minor/major), **or** `npm run release:local` locally
 - [ ] `CHANGELOG.md` updated (auto-changelog or manual)
 - [ ] `git push origin main` + `git push origin --tags` (tag `v*`)
 - [ ] GitHub Actions **Publish to npm** succeeded for that tag
@@ -190,9 +192,9 @@ Install in a test n8n instance if needed.
 
 | Script | Local | In CI (`publish.yaml`) |
 |--------|--------|-------------------------|
-| `npm run build` | Compile TypeScript to `dist/` | Same (via `npm run release`) |
+| `npm run build` | Compile TypeScript to `dist/` | Same (via `npm run releas:local`) |
 | `npm run lint` | `n8n-node lint` | Same |
-| `npm run release` | Version bump, changelog, commit, tag, push — **no npm publish** | Lint, build, **`npm publish` with provenance** |
+| `npm run release:local` | Version bump, changelog, commit, tag, push — **no npm publish** | Lint, build, **`npm publish` with provenance** |
 | `prepublishOnly` | Blocks direct `npm publish`; use CI or `RELEASE_MODE` | Runs during `npm publish` in CI |
 
 ## Common issues
