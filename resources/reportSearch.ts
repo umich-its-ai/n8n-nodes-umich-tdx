@@ -4,7 +4,10 @@
 
 import { INodeProperties } from "n8n-workflow"
 import { setBaseApiUrl } from "../helpers/authentication"
-import { preSendValidateSearchTextInRequest, preSendValidateOwnerUidInRequest } from "../helpers/validation"
+import {
+	preSendValidateSearchTextInRequest,
+	preSendValidateOwnerUidInRequest
+} from "../helpers/validation"
 
 export const reportSearchOperations: INodeProperties[] = [
 	{
@@ -63,7 +66,7 @@ export const reportSearchOperations: INodeProperties[] = [
 		hint: "The report's visibility settings must include the APIReportingAccess group for it to be searchable by this resource.",
 		routing: {
 			request: {
-				url: "=reports/{{$value}}"
+				url: "=reports/{{$value}}?withData=true"
 			}
 		},
 		displayOptions: {
