@@ -23,7 +23,8 @@
 		"dev": "n8n-node dev",
 		"lint": "n8n-node lint",
 		"lint:fix": "n8n-node lint --fix",
-		"release": "dotenv -- n8n-node release",
+		"release": "n8n-node release",
+		"release:local": "dotenv -- n8n-node release",
 		"prepublishOnly": "n8n-node prerelease"
 	},
 	"files": [
@@ -41,6 +42,7 @@
 	"devDependencies": {
 		"@n8n/node-cli": "^0.33.0",
 		"@types/node": "^25.2",
+		"dotenv-cli": "^11.0.0",
 		"eslint": "^9.29",
 		"prettier": "^3.8",
 		"release-it": "^19.2",
