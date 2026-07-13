@@ -9,6 +9,7 @@ export * from './ticketModification';
 export * from './userLookup';
 export * from './reportSearch';
 export * from './resource';
+export * from './attachments';
 
 // Aggregated export for convenience - combines all resources and operations
 import { ticketResource } from './resource';
@@ -17,6 +18,7 @@ import { ticketCreationOperations } from './ticketCreation';
 import { ticketModificationOperations } from './ticketModification';
 import { userLookupOperations } from './userLookup';
 import { reportSearchOperations } from './reportSearch';
+import { attachmentsOperations } from './attachments';
 import { INodeProperties } from 'n8n-workflow';
 
 export const allResources: INodeProperties[] = [
@@ -25,5 +27,6 @@ export const allResources: INodeProperties[] = [
 	...ticketCreationOperations,
 	...ticketModificationOperations,
 	...userLookupOperations,
-	...reportSearchOperations
+	...reportSearchOperations,
+	...attachmentsOperations
 ]

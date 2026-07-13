@@ -1,6 +1,6 @@
 # n8n-nodes-umich-tdx
 
-This is an n8n community node that provides integration with the University of Michigan (UMich) TeamDynamix (TDX) API. It enables you to interact with UMich TDX services directly from your n8n workflows, including ticket creation, modification, single-ticket and multi-ticket search, report lookup, and user lookup operations.
+This is an n8n community node that provides integration with the University of Michigan (UMich) TeamDynamix (TDX) API. It enables you to interact with UMich TDX services directly from your n8n workflows, including ticket creation, modification, single-ticket and multi-ticket search, report lookup, user lookup, and ticket attachment download operations.
 
 The UMich TDX API is a service that allows programmatic access to TeamDynamix ticket management functionality for University of Michigan systems.
 
@@ -58,7 +58,7 @@ To use this node, you need to set up OAuth2 credentials with the U-M API Directo
 
 ## Resources and Operations
 
-The UMich TDX node supports five main resources, each with specific operations:
+The UMich TDX node supports six main resources, each with specific operations:
 
 ### 1. Ticket Search
 
@@ -104,6 +104,7 @@ Create new tickets in TDX.
     - `Body`: The description/body of the ticket (max 2000 characters)
     - `Requestor`: Email address of the requestor (must be a valid `@umich.edu` email)
     - `Service ID`: The service ID that the ticket is related to (numeric)
+    - `Type ID`: An internal classification of the ticket (numeric). Available from the instance admin.
   - **Optional Parameters**:
     - `Responsible Group ID`: The responsible group ID to assign the ticket to (numeric)
   - **Additional Fields** (optional):
@@ -164,6 +165,25 @@ Search and retrieve TDX reports (saved searches / reporting definitions).
 
   Returns multiple reports in the API response. Use **Get Report by ID** when you already know the report ID; use **Search Reports** to discover reports by name or owner.
 
+### 6. Attachments
+
+Download ticket attachment file content from TDX as n8n binary data.
+
+#### Operations
+
+- **Get Attachment Content by ID**: Download the raw content of a TDX attachment
+  - **Parameters**:
+    - `Attachment ID` (required): The UUID of the attachment (from a ticket’s `Attachments` array)
+  - **Output**:
+    - **Binary**: File content on the `data` binary property
+    - **JSON**: Pass-through fields from upstream nodes (e.g. `attachmentId`, `fileName`, `ticketId`) plus resolved `fileName` and `mimeType`
+  - **API endpoint**: `GET attachments/{id}/content`
+  - **Notes**:
+    - Responses are fetched as raw bytes (`arraybuffer`), not JSON
+    - Pass `fileName` from a prior node (e.g. Code node splitting ticket attachments) so Google Drive and other downstream nodes get the correct filename
+    - Allowed file extensions: `pdf`, `jpg`, `jpeg`, `png`, `gif`, `webp`, `doc`, `docx`, `xls`, `xlsx`, `ppt`, `pptx`, `txt`, `csv`, `tsv`, `json`, `xml`, `html`, `css`, `js`
+    - Maximum file size: 20 MB
+
 ## Validation and Security
 
 The node includes comprehensive validation measures to ensure data integrity and security:
@@ -187,7 +207,7 @@ The node includes comprehensive validation measures to ensure data integrity and
 
 4. **Numeric ID Validation**:
    - Must be numeric only
-   - Used for: Service ID, Responsible Group ID, Status ID, Source ID, Ticket ID, Report ID, Report Source ID
+   - Used for: Service ID, Responsible Group ID, Status ID, Source ID, Ticket ID, Report ID, Report Source ID, Type ID
 
 5. **Comma-Separated ID Lists**:
    - Used in **Search Tickets** additional parameters (`Status IDs`, `Service IDs`, `Location IDs`, etc.)
@@ -203,6 +223,12 @@ The node includes comprehensive validation measures to ensure data integrity and
    - Only allows specific source IDs
    - Currently only allows `8` (Systems) for ticket creation
    - Can be expanded in the future
+
+8. **Attachment Validation**:
+   - **Attachment ID**: UUID string (validated as a safe URL path segment)
+   - **File extension allowlist**: Only common document, image, and text types are accepted; other extensions are rejected after download
+   - **File size limit**: Maximum 20 MB per attachment
+   - **Binary handling**: Downloads use `arraybuffer` encoding and a custom post-receive hook so PDFs, images, and Office files are not corrupted by JSON/text parsing
 
 ### Security Features
 
@@ -250,6 +276,7 @@ To switch between environments:
    - Body: "This is an example ticket created via n8n"
    - Requestor: "user@umich.edu"
    - Service ID: "31"
+   - Type ID: "421"
    - Responsible Group ID: "944" (optional)
 5. Configure additional fields as needed
 6. Execute the workflow
@@ -291,6 +318,33 @@ To switch between environments:
    - Additional Parameters → Owner UID: (optional, from a prior User Lookup node)
 2. Use the report ID from the search results in a follow-on workflow step, or call **Get Report by ID** with a known ID to retrieve full report metadata.
 
+### Example 6: Download Ticket Attachments to Google Drive
+
+1. **Ticket Search** → "Get Ticket by ID"
+   - Ticket ID: `10374337`
+2. **Code** node — one output item per attachment:
+
+```javascript
+return $input.all().flatMap(item => {
+  const ticket = item.json;
+  return (ticket.Attachments ?? []).map(attachment => ({
+    json: {
+      ticketId: ticket.ID,
+      attachmentId: attachment.ID,
+      fileName: attachment.Name,
+    },
+  }));
+});
+```
+
+3. **UMich TDX** → Resource: "Attachments", Operation: "Get Attachment Content by ID"
+   - Attachment ID: `{{ $json.attachmentId }}`
+4. **Google Drive** → Upload file
+   - Binary Property: `data`
+   - File Name: `{{ $json.fileName }}`
+
+Each attachment runs as its own item. Binary data is stored in n8n’s binary layer (memory or configured storage) until the Drive node uploads it.
+
 ## Compatibility
 
 - **Minimum n8n version**: Compatible with n8n workflow API version 1
@@ -311,8 +365,10 @@ To switch between environments:
 - **Service ID**: Found in the JSON response when retrieving a ticket via "Ticket Search" (single or search results)
 - **Status ID**: Found in ticket search/get responses; use comma-separated values for multi-ticket search filters
 - **Responsible Group ID**: In TDX, go to the create ticket form, search for groups in the Responsible field, click "View" under the profile, and find the "Group ID" in the upper-left portion of the page
+- **Type ID**: Reach out to your TDX administrator to get the list of type IDs.
 - **TDX User UID**: Found in the JSON response when using "User Lookup" → "Find UID by Uniqname"; also used as **Owner UID** in report search
 - **Report ID**: From **Search Reports** results, or from the TDX reporting UI (report must grant **APIReportingAccess** visibility)
+- **Attachment ID**: UUID on each object in a ticket’s `Attachments` array (from **Get Ticket by ID** or **Search Tickets**). Use `ContentUri` or `ID` — the node expects the UUID only (e.g. `6a24453b-0775-45f5-90a3-096ea8982098`)
 
 ### Support
 
