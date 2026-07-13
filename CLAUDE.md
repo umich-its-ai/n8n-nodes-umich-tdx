@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-n8n community node for University of Michigan TeamDynamix (TDX) API. Provides ticket operations (search, create, modify) and user lookup via OAuth2 client credentials against U-M API Gateway.
+n8n community node for University of Michigan TeamDynamix (TDX) API. Provides ticket operations (search, create, modify), report search, user lookup, and attachment download via OAuth2 client credentials against U-M API Gateway.
 
 ## Commands
 
@@ -30,9 +30,9 @@ No test framework configured — no unit tests exist.
 ```
 credentials/         → OAuth2 credential definition (test/prod environments)
 nodes/UmichTdx/     → Main node class (INodeType), metadata JSON, icon
-resources/           → Operation definitions per resource (ticketSearch, ticketCreation, ticketModification, userLookup)
+resources/           → Operation definitions per resource (ticketSearch, ticketCreation, ticketModification, userLookup, reportSearch, attachments)
 fields/              → Field definitions; `additionalFields.ts` has 6 optional boolean params for ticket creation (routed via `routing.request.qs`); `commonFields.ts` is empty placeholder
-helpers/             → authentication.ts (base URL routing), validation.ts (pre-send input validators)
+helpers/             → authentication.ts (base URL routing), validation.ts (pre-send input validators), attachments.ts (binary download preSend/postReceive)
 ```
 
 ### How it works
@@ -49,6 +49,8 @@ helpers/             → authentication.ts (base URL routing), validation.ts (pr
 - **Environment switching**: Credential stores environment choice; `setBaseApiUrl()` pre-send hook reads it to set `requestOptions.baseURL`
 - **Security constraints**: @umich.edu email enforcement, numeric ID validation, path segment sanitization; title ≤500 chars, description/comments ≤2000 chars
 - **Source ID locked to 8**: Ticket creation hardcodes SourceID=8 (Systems) — validated server-side. statusId defaults to 0 (hidden field). Do not expose these.
+- **Binary attachment downloads**: Attachments resource uses `GET attachments/{id}/content`. Chain `[setBaseApiUrl, prepareAttachmentDownloadRequest]` in preSend; `prepareAttachmentDownloadRequest` sets `json: false`, `encoding: 'arraybuffer'`, `Accept: */*`, and removes inherited `Content-Type`. Custom `transformAttachmentToBinary` postReceive converts response to Buffer, calls `prepareBinaryData`, outputs `$binary.data`. Global `requestDefaults` still send JSON headers for other operations — attachment op overrides per-request.
+- **Attachment constraints**: Attachment IDs are UUIDs (not numeric). Extension allowlist and 20 MB size cap enforced in `transformAttachmentToBinary` after download. Pass `fileName` from upstream Code node for correct metadata in Drive/upload nodes.
 
 ### n8n loading
 

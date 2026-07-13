@@ -127,10 +127,10 @@ export async function transformAttachmentToBinary(
 			if (ext && !allowedExtensions.includes(ext)) {
 				throw new Error(`Unsupported file extension: ${ext}`)
 			}
-			
-			// Don't allow files > 20MB 
+
+			// Don't allow files > 20MB (body is a Buffer, so length is the number of bytes)
 			if (body.length > 20 * 1024 * 1024) {
-				throw new Error('File size exceeds 20MB limit')
+				throw new Error("File size exceeds 20MB limit")
 			}
 
 			// Prepare the binary data for the response (prepareBinaryData comes from the n8n-workflow package).
