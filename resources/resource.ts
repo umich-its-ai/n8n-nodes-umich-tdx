@@ -30,6 +30,10 @@ export const ticketResource: INodeProperties = {
 			name: 'Report Search',
 			value: 'reportSearch',
 		},
+		{
+			name: 'Attachments',
+			value: 'attachments',
+		},
 	],
 	default: 'ticketSearch',
 };
