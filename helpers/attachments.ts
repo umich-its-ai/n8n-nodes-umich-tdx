@@ -119,8 +119,7 @@ export async function transformAttachmentToBinary(
 				"xml",
 				"html",
 				"css",
-				"js",
-				"html"
+				"js"
 			]
 
 			// Don't allow unsupported file extensions

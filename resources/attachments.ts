@@ -8,6 +8,7 @@ import {
 	prepareAttachmentDownloadRequest,
 	transformAttachmentToBinary,
 } from "../helpers/attachments"
+import { preSendValidateAttachmentIdInRequest } from "../helpers/validation"
 
 export const attachmentsOperations: INodeProperties[] = [
 	{
@@ -17,7 +18,7 @@ export const attachmentsOperations: INodeProperties[] = [
 		noDataExpression: true,
 		displayOptions: {
 			show: {
-				resource: ["attachments"]
+				resource: ["attachment"]
 			}
 		},
 		options: [
@@ -31,7 +32,11 @@ export const attachmentsOperations: INodeProperties[] = [
 						method: "GET",
 					},
 					send: {
-						preSend: [setBaseApiUrl, prepareAttachmentDownloadRequest],
+						preSend: [
+							setBaseApiUrl,
+							preSendValidateAttachmentIdInRequest,
+							prepareAttachmentDownloadRequest,
+						],
 					},
 					output: {
 						postReceive: [transformAttachmentToBinary],
@@ -47,15 +52,15 @@ export const attachmentsOperations: INodeProperties[] = [
 		required: true,
 		name: "attachmentId",
 		type: "string",
-		default: 0,
+		default: "",
 		routing: {
 			request: {
-				url: "=attachments/{{$value}}/content" // $value is validated for safe URL path segments in the validateTicketIdInRequest helper
+				url: "=attachments/{{$value}}/content"
 			}
 		},
 		displayOptions: {
 			show: {
-				resource: ["attachments"],
+				resource: ["attachment"],
 				operation: ["getAttachmentContentById"]
 			}
 		},

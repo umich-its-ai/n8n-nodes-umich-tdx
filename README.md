@@ -165,7 +165,7 @@ Search and retrieve TDX reports (saved searches / reporting definitions).
 
   Returns multiple reports in the API response. Use **Get Report by ID** when you already know the report ID; use **Search Reports** to discover reports by name or owner.
 
-### 6. Attachments
+### 6. Attachment
 
 Download ticket attachment file content from TDX as n8n binary data.
 
@@ -337,7 +337,7 @@ return $input.all().flatMap(item => {
 });
 ```
 
-3. **UMich TDX** → Resource: "Attachments", Operation: "Get Attachment Content by ID"
+3. **UMich TDX** → Resource: "Attachment", Operation: "Get Attachment Content by ID"
    - Attachment ID: `{{ $json.attachmentId }}`
 4. **Google Drive** → Upload file
    - Binary Property: `data`

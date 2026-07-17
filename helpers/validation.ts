@@ -121,6 +121,23 @@ export function validateTextLength(
 }
 
 /**
+ * PreSend hook to validate Attachment ID in request
+ * @param this - The context object
+ * @param requestOptions - The request options object
+ * @returns The request options object
+ */
+export async function preSendValidateAttachmentIdInRequest(
+	this: IExecuteSingleFunctions,
+	requestOptions: IHttpRequestOptions
+): Promise<IHttpRequestOptions> {
+	const attachmentId = this.getNodeParameter("attachmentId") as string
+	if (attachmentId) {
+		validatePathSegment(attachmentId, "Attachment ID")
+	}
+	return requestOptions
+}
+
+/**
  * PreSend hook to validate UID in request
  * @param this - The context object
  * @param requestOptions - The request options object
